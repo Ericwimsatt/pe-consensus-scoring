@@ -49,10 +49,10 @@ def weighting_alg(IAA_csv_file, credibility_weights_csv_file, weight_scale_csv, 
             print(IAA_csv)
             raise Exception('Index Error')
 
-    if "uage" in IAA_csv_schema_name:
-        IAA_csv_schema_type = "Language"
-    elif "Reason" in IAA_csv_schema_name:
-        IAA_csv_schema_type = "Reasoning"
+    if "ommun" in IAA_csv_schema_name:
+        IAA_csv_schema_type = "Community"
+    elif "ndivid" in IAA_csv_schema_name:
+        IAA_csv_schema_type = "Individual"
     elif "Evidence" in IAA_csv_schema_name:
         IAA_csv_schema_type = "Evidence"
     elif "Probability" in IAA_csv_schema_name:
@@ -62,8 +62,8 @@ def weighting_alg(IAA_csv_file, credibility_weights_csv_file, weight_scale_csv, 
     elif 'ource' in IAA_csv_schema_name:
         IAA_csv_schema_type = "Source"
     else:
-        print("unweighted IAA", IAA_csv_file, "aborting")
-        return
+        IAA_csv_schema_type = "unlabled CSV"
+
 
     IAA_csv = IAA_csv.rename(columns={ "question_Number": "Question_Number", 'agreed_Answer': 'Answer_Number'})
     IAA_csv['Schema'] = IAA_csv_schema_type
@@ -84,7 +84,7 @@ def weighting_alg(IAA_csv_file, credibility_weights_csv_file, weight_scale_csv, 
 
     new_csv = pd.merge(scaled_cred_weights, IAA_csv, on =["namespace", "Question_Number", 'Answer_Number'])
     points = new_csv[weight_col] * new_csv["agreement_score"]
-    new_csv = new_csv.assign(agreement_adjusted_points = points)
+    new_csv = new_csv.assign(points = points)
     for_visualization = for_visualization.append(new_csv)
     if reporting:
         out_file = directory+"/Point_recs_"+IAA_csv_schema_name+".csv"

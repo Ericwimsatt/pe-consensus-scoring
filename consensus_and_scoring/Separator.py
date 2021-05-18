@@ -17,10 +17,11 @@ def splitcsv(directory, pointsFile = None, viz_dir = None, textseparator = '//br
         pointsdf = pointsFile
     #print(pointsdf)
     valid_points = pointsdf[~pd.isna(pointsdf['article_sha256'])]
-    valid_points = valid_points[valid_points['points']!=0]
+    #including 0 points for sfu
+    #valid_points = valid_points[valid_points['points']!=0]
     articles = np.unique(valid_points['article_sha256'])
     final_cols = ['Article ID', 'Credibility Indicator ID', 'Credibility Indicator Category',
-                  'Credibility Indicator Name', 'Points', 'Indices of Label in Article', 'Start', 'End', 'target_text']
+                  'Level1', 'Level2', 'Points', 'Indices of Label in Article', 'Start', 'End', 'target_text']
 
 
     for art in articles:
@@ -33,15 +34,16 @@ def splitcsv(directory, pointsFile = None, viz_dir = None, textseparator = '//br
         schema = np.unique(artdf['Schema'])
         for s in schema:
             sch_df = artdf[artdf['Schema'] == s]
-            cred_cat = sch_df['Schema'].iloc[0]
+            category = sch_df['Schema'].iloc[0]
             count = 0
 
             #Following loop goes through each entry in the weights table
             for j in range(sch_df.shape[0]):
                 start = -1
                 end = -1
-                cred_id = cred_cat[0] + str(count)
-                cred_ind_name = sch_df['Label'].iloc[j]
+                cred_id = category[0] + str(count)
+                lev2_name = sch_df['Label'].iloc[j]
+                lev1_name = sch_df['Label2'].iloc[j]
                 indices = sch_df['highlighted_indices'].iloc[j]
                 points = sch_df['points'].iloc[j]
                 text = sch_df['target_text'].iloc[j]
@@ -58,7 +60,7 @@ def splitcsv(directory, pointsFile = None, viz_dir = None, textseparator = '//br
                         indices = chunks[k]
                         #addend = pd.DataFrame([art_id, cred_id, cred_cat, cred_ind_name, points, indices,start,
                         #                       end])
-                        addend = [art_id, cred_id, cred_cat, cred_ind_name, points, indices,start, end, text]
+                        addend = [art_id, cred_id, category,  lev1_name, lev2_name, points, indices,start, end, text]
                         final_out.append(addend)
                         #set point value to 0 to avoid double counting
                         #the visualizatio sums up the column and automatically combines separate unitizations with
@@ -66,7 +68,7 @@ def splitcsv(directory, pointsFile = None, viz_dir = None, textseparator = '//br
                         points = 0
                 else:
                     #addend = pd.DataFrame([art_id, cred_id, cred_cat, cred_ind_name, points, indices, start, end])
-                    addend = [art_id, cred_id, cred_cat, cred_ind_name, points, indices, start, end, text]
+                    addend = [art_id, cred_id, category, lev1_name, lev2_name, points, indices, start, end, text]
                     final_out.append(addend)
                 count +=1
                 #final_out = pd.concat([final_out, addend], axis =0, names = final_cols)
