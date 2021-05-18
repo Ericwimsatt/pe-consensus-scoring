@@ -14,6 +14,7 @@ ADJUDICATED_AGREEMENT_SCORE = .8
 def import_tags(old_s_iaa_dir, tags_dir, schema_dir, output_dir):
     '''
     old_s_iaa_dir is directory to the output of iaa before it got sent to the adjudicator
+        For SFU old_s_iaa_dir can be an empty folder.
     tags_dir is directory to adjudicator output
     schema_dir is directory to where the schemas are held, should be same location as when IAA was run
     output_dir is where the updated S_IAA files will be sent to
@@ -41,7 +42,10 @@ def import_tags(old_s_iaa_dir, tags_dir, schema_dir, output_dir):
     temp_dfs = []
     for i in range(len(iaa_files)):
         temp_dfs.append(pd.read_csv(iaa_files[i]))
-    iaa = pd.concat(temp_dfs)
+    if len(temp_dfs) >1:
+        iaa = pd.concat(temp_dfs)
+    else:
+        print("no iaa file found")
 
     temp_dfs = []
     for i in range(len(tag_files)):
@@ -56,12 +60,12 @@ def import_tags(old_s_iaa_dir, tags_dir, schema_dir, output_dir):
     schema = pd.concat(temp_dfs)
 
     #namespace_to_schema = make_namespace_to_schema_dict(tags, iaa, schema_dir)
-    tags['question_Number'] = 'ERICYOUMISSEDASPOT'
-    tags['agreed_Answer'] = 'ERICYOUMISSEDASPOT'
-    tags['namespace'] = 'ERICYOUMISSEDASPOT'
-    tags['schema_sha256'] = 'ERICYOUMISSEDASPOT'
-    tags['tua_uuid'] = 'ERICYOUMISSEDASPOT'
-    tags['agreement_score'] = 'ERICYOUMISSEDASPOT'
+    tags['question_Number'] = 'NOT_FOUND'
+    tags['agreed_Answer'] = 'NOT_FOUND'
+    tags['namespace'] = 'NOT_FOUND'
+    tags['schema_sha256'] = 'NOT_FOUND'
+    tags['tua_uuid'] = 'NOT_FOUND'
+    tags['agreement_score'] = 'NOT_FOUND'
     tags['highlighted_indices'] = 'L'
 
     for i in range(len(tags.index)):
@@ -83,19 +87,20 @@ def import_tags(old_s_iaa_dir, tags_dir, schema_dir, output_dir):
             namespace = schem_row['namespace'].iloc[0]
             schema_sha = schem_row['schema_sha256'].iloc[0]
             task_id = tags['source_task_uuid'].iloc[i]
-            task_iaa = iaa[iaa['source_task_uuid'] == task_id]
-            if len(task_iaa.index) == 0:
-                raise Exception("Need TaskRuns in order to score")
-            tua_id = task_iaa['tua_uuid'].iloc[0]  # TUA UUID is same throughout the whole task
-            row_iaa = task_iaa[task_iaa['answer_uuid'] == a_uid]
-            if len(row_iaa.index) == 0:
-                agreement_score = ADJUDICATED_AGREEMENT_SCORE
-            else:
-                agreement_score = row_iaa['agreement_score'].iloc[0]
-
+            #commenting out agreement score operations to get just the count for SFU
+            # task_iaa = iaa[iaa['source_task_uuid'] == task_id]
+            # if len(task_iaa.index) == 0:
+            #     raise Exception("Need TaskRuns in order to score")
+            # tua_id = task_iaa['tua_uuid'].iloc[0]  # TUA UUID is same throughout the whole task
+            # row_iaa = task_iaa[task_iaa['answer_uuid'] == a_uid]
+            # if len(row_iaa.index) == 0:
+            #     agreement_score = ADJUDICATED_AGREEMENT_SCORE
+            # else:
+            #     agreement_score = row_iaa['agreement_score'].iloc[0]
+            agreement_score = 1
             #extra might be exported in future and will be cleaner
-            # extra = json.loads(tags['extra'].iloc[i])
-            # tua_id = extra['tua_uuid']
+            #extra = json.loads(tags['extra'].iloc[i])
+            #tua_id = extra['tua_uuid']
             # agreement_score = extra['agreement_score']
             start = tags['start_pos'].iloc[i]
             end = tags['end_pos'].iloc[i]
@@ -104,7 +109,7 @@ def import_tags(old_s_iaa_dir, tags_dir, schema_dir, output_dir):
         tags.iloc[i, tags.columns.get_loc('agreed_Answer')] = answer_number
         tags.iloc[i, tags.columns.get_loc('namespace')] = namespace
         tags.iloc[i, tags.columns.get_loc('schema_sha256')] = schema_sha
-        tags.iloc[i, tags.columns.get_loc('tua_uuid')] = tua_id
+        #tags.iloc[i, tags.columns.get_loc('tua_uuid')] = tua_id
         tags.iloc[i, tags.columns.get_loc('agreement_score')] = agreement_score
         tags.iloc[i, tags.columns.get_loc('highlighted_indices')] = json.dumps(highlight_indices)
     for source_task_uuid in tags['source_task_uuid'].unique():

@@ -11,16 +11,16 @@ def scoring_only(directory, iaa_dir, schema_dir, scoring_dir, viz_dir, tua_dir, 
     eval_dependency(directory, iaa_dir, schema_dir, out_dir=scoring_dir)
     print("WEIGHTING")
     weights = launch_Weighting(scoring_dir, reporting=reporting)
-    print("SORTING POINTS")
-    tuas, weights, tua_raw = pointSort(scoring_dir, input_dir=directory, weights=weights, tua_dir=tua_dir,
-                                       reporting=reporting)
-    points = eval_triage_scoring(tua_raw, weights, scoring_dir, threshold_func, reporting=reporting)
+    # print("SORTING POINTS")
+    # tuas, weights, tua_raw = pointSort(scoring_dir, input_dir=directory, weights=weights, tua_dir=tua_dir,
+    #                                    reporting=reporting)
+    # points = eval_triage_scoring(tua_raw, weights, scoring_dir, threshold_func, reporting=reporting)
     print("SPLITTING")
     if viz_dir == None:
         x = directory.rfind("/")
         x += 1
         viz_dir = '../../visualization_' + directory[x:]
-    splitcsv(scoring_dir, pointsFile=points, viz_dir=viz_dir, reporting=reporting)
+    splitcsv(scoring_dir, pointsFile=weights, viz_dir=viz_dir, reporting=reporting)
 
 def load_args():
     parser = argparse.ArgumentParser()
