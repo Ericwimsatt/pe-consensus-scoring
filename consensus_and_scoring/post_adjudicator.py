@@ -56,7 +56,7 @@ if __name__ == '__main__':
         adjudicated_dir = make_directory('../data/out_adjudicated_iaa/')
         scoring_dir = make_directory('../data/out_scoring/')
         viz_dir = make_directory('../data/out_viz/')
-        threshold_function = 'raw_30'
+        threshold_function = 'raw_50'
         if args.input_dir:
             input_dir = args.input_dir
         if args.schema_dir:

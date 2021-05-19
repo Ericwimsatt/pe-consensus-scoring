@@ -211,7 +211,7 @@ if __name__ == '__main__':
     args = load_args()
     # input
     config_path = './config/'
-    input_dir = '../data/test/'
+    input_dir = '../data/datahunts/'
     texts_dir = '../data/texts/'
     metadata_dir = '../data/metadata/'
     tua_dir = '../data/focus_tags/'
@@ -223,7 +223,7 @@ if __name__ == '__main__':
     rep_file = './UserRepScores.csv'
     s3_bucket = 'dev.publiceditor.io'
     s3_prefix = 'visualizations'
-    threshold_function = 'raw_30'
+    threshold_function = 'raw_50'
     if args.input_dir:
         input_dir = args.input_dir
     if args.schema_dir:
